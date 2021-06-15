@@ -7,23 +7,23 @@ This program prints out the CodingBat results for students that shared their acc
 **The program prints out the following for each student**
   ( 3  9)( 1  3)( ONE )( 2 43) LastName FirstName
 where each set of parenthesis contains the correct and error + incorrect number of submissions NOTE: instead of printing ( 1  0) indicating that the student got it correct the very first time, the program prints ( ONE ). If any two subsequent correct submissions are less than 120 seconds
-appart the program will print out the fastest two submissions with number of seconds as well as the two assignments.
+appart the program will print out the fastest two submissions with number of seconds as well as the two assignments.\
   [(106.0, 'p194781', 'p163932'), (128.0, 'p163932', 'p120015')]
 
 **The program will also print out the detailed submission information for a student's submissions.**
-  Problem p194781 (triangle) LastName FirstName
-    2021-04-21 13:18:06  correct
-    2021-04-21 13:23:23  compile error
-    2021-04-21 13:24:10  compile error
-    2021-04-21 13:24:13  compile error
-    2021-04-21 13:24:26  compile error
-    2021-04-21 13:24:43  2/10
-    2021-04-21 13:26:54  compile error
-    2021-04-21 13:29:17  compile error
-    2021-04-21 13:30:40  2/10
-    2021-04-21 13:31:15  0/10to
-    2021-04-21 13:32:33  correct
-    2021-04-21 13:34:31  correct
+  Problem p194781 (triangle) LastName FirstName\
+    2021-04-21 13:18:06  correct\
+    2021-04-21 13:23:23  compile error\
+    2021-04-21 13:24:10  compile error\
+    2021-04-21 13:24:13  compile error\
+    2021-04-21 13:24:26  compile error\
+    2021-04-21 13:24:43  2/10\
+    2021-04-21 13:26:54  compile error\
+    2021-04-21 13:29:17  compile error\
+    2021-04-21 13:30:40  2/10\
+    2021-04-21 13:31:15  0/10to\
+    2021-04-21 13:32:33  correct\
+    2021-04-21 13:34:31  correct\
 
 ### To make it work for YOUR class
 1. To use the program with your CodingBat teacher account enter your login information in the login.py file.
