@@ -2,7 +2,6 @@
 #   pip install bs4
 #   pip install requests
 #
-#
 # This program outputs the CodingBat (CB) results of students that registered
 # a Teacher Share with the teacher account (CB MENU: prefs).
 # It can optionally print out only students in specific class periods
