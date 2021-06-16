@@ -42,32 +42,19 @@ ONLINESOLUTIONS = "C:/Users/E151509/Google Drive/My LASA/CodingBat/Plagiarism/"
 
 ###### JAVA ######
 assignments_java = {}
-
-# JAVA midterm
-#PROBLEMS = ["p283631","p292285"]  # isAlphaNumeric, whatFloor
-# JAVA array-2 & array-3 tenRun, modThree, maxSpan, canBalance, seriesUp
-assignments_java["array-2"] = {"p199484":"tenRun","p159979":"modThree","p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
-# JAVA testing
-#PROBLEMS = ["p187868"]
-# JAVA CodingBat 1-5
-#assignments_java["CodingBat 1-5"] = ["p182879","p296999","p164144","p110973","p123614"]
-# JAVA Coding Bat Flex Friday
-# PROBLEMS = ["p175763","p146449","p168564"]
+assignments_java["Midterm"] = {"p283631" : "isAlphaNumeric", "p292285" : "whatFloor"}
+assignments_java["array-2and3"] = {"p199484":"tenRun","p159979":"modThree","p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
 assignments_java["Flex Friday"] = {"p136585":"centeredAverage"}
 assignments_java["Recursion"] = {"p194781":"triangle","p163932":"sumDigits","p120015":"fibonacci","p118182":"strCopies"}
 
       
 ###### PYTHON ######
 assignments_python = {}
-
-# Python rightRange
-#PROBLEMS = ["p299949"]
-# Python Strings1 BONUS
-#assignments_python["strings1"] = ["p115413","p182144","p132290","p129981","p148853","p184816","p107010","p138533","p194053","p127703","p160545"]
-# Python List BONUS
+assignments_python["rightRange"] = {"p299949" : "rightRange"}
+assignments_python["strings1"] = {"p115413" : "hello_name","p182144" : "make_abba","p132290" : "make_tags","p129981" : "make_out_word","p148853" : "extra_end","p184816" : "first_two","p107010" : "first_half","p138533" : "without_end","p194053" : "combo_string","p127703" : "non_start","p160545" : "left2"}
 assignments_python["list bonus"] = {"p192962":"reverse3","p135290":"max_end3","p126968":"centered_average","p108886":"sum67"}
-#assignments_python["Final 2021 - Day 1"] = ["p255003","p281953"]  # Python div2and7, allAboutListsPart1
-#assignments_python["Final 2021 - Day 2"] = ["p226557","p217373"]  # Python allAboutListsPart2, allAboutListsPart3
+assignments_python["Final 2021 - Day 1"] = {"p255003" : "div2and7","p281953" : "allAboutListsPart1"}  
+assignments_python["Final 2021 - Day 2"] = {"p226557" : "allAboutListsPart2","p217373" : "allAboutListsPart3"}
 
 
 assignments = assignments_java
@@ -247,6 +234,9 @@ def doIt():
    with requests.Session() as session:
       print("Logging in")
       post = session.post(LOGIN_URL, data=post_params)
+      if "Failed to login -- bad username or password" in post.text:
+           print("  login failed (double check CodingBat username & password in login.py)")
+           exit()
       scrapedData = scrapeStudentsData(session)
       count = 0
       for studentData in scrapedData:
@@ -315,7 +305,7 @@ def doIt():
       while True:
           ans = input("Enter number for student details (or x to exit)? ")
           if ans == 'x':
-              break
+              exit()
           studentData = scrapedData[int(ans)-1]
           studentProblemsDict = studentData[4]
           for problem in PROBLEMS:
