@@ -24,6 +24,10 @@ Any two subsequent correct submissions that are less than 120 seconds are consid
     2021-04-21 13:31:15  0/10to\
     2021-04-21 13:32:33  correct\
     2021-04-21 13:34:31  correct
+    
+### Required Python packages
+  pip install bs4
+  pip install requests
 
 ### To make it work for YOUR class
 1. To use the program with your CodingBat teacher account enter your login information in the login.py file.
