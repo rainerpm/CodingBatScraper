@@ -1,25 +1,3 @@
-# prerequisite
-#   pip install bs4
-#   pip install requests
-#
-# This program outputs the CodingBat (CB) results of students that registered
-# a Teacher Share with the teacher account (CB MENU: prefs).
-# It can optionally print out only students in specific class periods
-# as extracted from the CB memo field by the memoParse() function
-#(CB Menu: report)
-#
-# The program outputs the following for each registered student
-#   ( 1  1)( 1  2)( 1  1)( 1 12) LastName First Name
-# where each set of parenthesis contains the correct and error + incorrect
-# number of submissions NOTE: instead of printing ( 1  0) indicating that
-# the student got it correct the very first time, the program prints ( ONE )
-# Also if any two subsequent correct submissions are less than 120 seconds
-# appart the program will print out the fastest two submissions with number
-# of seconds as well as the two assignments.
-#   [(106.0, 'p194781', 'p163932'), (128.0, 'p163932', 'p120015')]
-# Optinally the program will also print out the detailed timing of each of
-# a student's submissions.
-
 import login
 
 from bs4 import BeautifulSoup
