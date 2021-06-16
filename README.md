@@ -26,7 +26,7 @@ Any two subsequent correct submissions that are less than 120 seconds are consid
     2021-04-21 13:34:31  correct
     
 ### Required Python packages
-  pip install bs4
+  pip install bs4\
   pip install requests
 
 ### To make it work for YOUR class
