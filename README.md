@@ -6,7 +6,7 @@ This program prints out the student's results for a set of CodingBat problems. S
 
 **The program prints out the following for each student**
 
-   3 ( 3  9)( 1  3)( ONE )( 2 43) LastName FirstName
+   4 ( 3  9)( 1  3)( ONE )( 2 43) LastName FirstName
    
 where the first number is the number of correct problems and each set of parenthesis contains the 'correct' and 'error + incorrect' number of submissions for a CodingBat problem in an assignment. NOTE: instead of printing ( 1  0) indicating that the student got it correct the very first time, the program prints ( ONE ).\
 Any two subsequent correct submissions that are less than 120 seconds are considered **suspiciously fast** causing the program to print out the fastest two submissions. For example, the below output indicates that p169932 was submitted correctly only 106 seconds after p194781 was submitted correctly.\
