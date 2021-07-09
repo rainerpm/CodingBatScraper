@@ -35,62 +35,6 @@ assignments_python["Final 2021 - Day 1"] = {"p255003" : "div2and7","p281953" : "
 assignments_python["Final 2021 - Day 2"] = {"p226557" : "allAboutListsPart2","p217373" : "allAboutListsPart3"}
 
 
-assignments = assignments_java
-language = "java"
-
-if FILTERBYPERIOD:
-    PERIODSPYTHON = ["P4","P5","P6","P4P5P6"]
-    PERIODSJAVA = ["P1"]
-    PERIODS = PERIODSJAVA + PERIODSPYTHON
-    opt = 1
-    for periodopt in PERIODS:
-        print(str(opt) + ")" ,periodopt)
-        opt += 1
-    choice = input("Choose period(s)? ")
-    PERIOD = PERIODS[int(choice)-1]
-
-    if PERIOD in PERIODSPYTHON:
-        language = "python"
-        assignments = assignments_python
-    
-assignmentsList = sorted(assignments.items())
-
-opt = 1
-for assignment in assignmentsList:
-    print(str(opt) + ")" , assignment[0])
-    opt += 1
-choice = input("Choose assignment? ")
-PROBLEMS = assignmentsList[int(choice)-1][1]
-
-ans = input("Print out suspiciously fast submissions (n or ENTER to continue)? ")
-if ans == 'n':
-   FASTSUBMISSIONS = False
-else:
-   FASTSUBMISSIONS = True
-
-ans = input("Extract code for plagiarism checking (y or ENTER to continue)? ")
-if ans == 'y':
-   EXTRACTFILES = True
-   OUTPUTDIR = DEFAULTOUTPUTDIR
-else:
-   EXTRACTFILES = False
-            
-# urls to use
-BASE_URL = "https://codingbat.com"
-LOGIN_URL = BASE_URL + "/login"
-if language == "java":
-   LANGUAGE_URL = BASE_URL + "/java"
-   REPORT_URL = BASE_URL + "/report?java=on&stock=on&sortname=on&homepath=&form="
-   COMMENT_START = "//"
-   FILE_EXT = ".java"
-   MOSS_BAT_FILE = "moss_java.bat"
-else:
-   LANGUAGE_URL = BASE_URL + "/python"
-   REPORT_URL = BASE_URL + "/report?python=on&stock=on&sortname=on&homepath=&form="
-   COMMENT_START = "#"
-   FILE_EXT = ".py"
-   MOSS_BAT_FILE = "moss_python.bat"
-
 # extract student's class period and first & last name from info in memo field
 def memoParse(memo):
    result = re.search('^\((.*)\) ([-\w]+),\s?([-\w]+)', memo)
@@ -105,7 +49,7 @@ def memoParse(memo):
 def scrapeStudentsData(session):
     for key in sorted(PROBLEMS.keys()) :
        print(" ",key , " -> " , PROBLEMS[key])
-    print("Retrieving student data - may take a few minutes (correct, error + incorrect)")
+    print("Retrieving student data (correct, error + incorrect)")
     studentsData = []
     reportPage = session.get(REPORT_URL)
     soup = BeautifulSoup(reportPage.content,"html.parser")
@@ -239,7 +183,7 @@ def doIt():
             else:
                 result = "(!done)"
             results += result
-         print(f'{count:>2d} {studentData[0]} {numCorrect} {results} {studentName}')
+         print(f'{count:>2d} {studentData[0]} {numCorrect:>2d} {results} {studentName}')
          if firstCorrectAttempts:
             firstCorrectAttempts.sort()
             firstCorrectAttemptsWithDifference = attemptsAddDifference(firstCorrectAttempts)
@@ -247,7 +191,7 @@ def doIt():
                firstCorrectAttemptsWithDifference.sort()
                first = firstCorrectAttemptsWithDifference[0]
                if FASTSUBMISSIONS and first[0] < 120:
-                  print("       ",firstCorrectAttemptsWithDifference[:2])
+                  print("        ",firstCorrectAttemptsWithDifference[:2])
 
       if EXTRACTFILES:
           print("Extracting files to",OUTPUTDIR)
@@ -295,6 +239,61 @@ def doIt():
           
 
 if __name__ == "__main__":
+    assignments = assignments_java
+    language = "java"
+
+    if FILTERBYPERIOD:
+        PERIODSPYTHON = ["P4","P5","P6","P4P5P6"]
+        PERIODSJAVA = ["P1"]
+        PERIODS = PERIODSJAVA + PERIODSPYTHON
+        opt = 1
+        for periodopt in PERIODS:
+            print(str(opt) + ")" ,periodopt)
+            opt += 1
+        choice = input("Choose period(s)? ")
+        PERIOD = PERIODS[int(choice)-1]
+
+        if PERIOD in PERIODSPYTHON:
+            language = "python"
+            assignments = assignments_python
+        
+    assignmentsList = sorted(assignments.items())
+
+    opt = 1
+    for assignment in assignmentsList:
+        print(str(opt) + ")" , assignment[0])
+        opt += 1
+    choice = input("Choose assignment? ")
+    PROBLEMS = assignmentsList[int(choice)-1][1]
+
+    ans = input("Print out suspiciously fast submissions (n or ENTER to continue)? ")
+    if ans == 'n':
+       FASTSUBMISSIONS = False
+    else:
+       FASTSUBMISSIONS = True
+
+    ans = input("Extract code for plagiarism checking (y or ENTER to continue)? ")
+    if ans == 'y':
+       EXTRACTFILES = True
+       OUTPUTDIR = DEFAULTOUTPUTDIR
+    else:
+       EXTRACTFILES = False
+                
+    # urls to use
+    BASE_URL = "https://codingbat.com"
+    LOGIN_URL = BASE_URL + "/login"
+    if language == "java":
+       LANGUAGE_URL = BASE_URL + "/java"
+       REPORT_URL = BASE_URL + "/report?java=on&stock=on&sortname=on&homepath=&form="
+       COMMENT_START = "//"
+       FILE_EXT = ".java"
+       MOSS_BAT_FILE = "moss_java.bat"
+    else:
+       LANGUAGE_URL = BASE_URL + "/python"
+       REPORT_URL = BASE_URL + "/report?python=on&stock=on&sortname=on&homepath=&form="
+       COMMENT_START = "#"
+       FILE_EXT = ".py"
+       MOSS_BAT_FILE = "moss_python.bat"
     codingBatLoginUserName, codingBatLoginPassword = login.getLoginInformation()
     post_params = {
         "uname": codingBatLoginUserName,
