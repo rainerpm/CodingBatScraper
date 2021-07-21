@@ -294,7 +294,6 @@ if __name__ == "__main__":
        COMMENT_START = "#"
        FILE_EXT = ".py"
        MOSS_BAT_FILE = "moss_python.bat"
-    codingBatLoginUserName, codingBatLoginPassword = login.getLoginInformation()
     post_params = {
         "uname": codingBatLoginUserName,
         "pw": codingBatLoginPassword,
