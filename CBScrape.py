@@ -1,4 +1,4 @@
-import login
+from login import codingBatLoginUserName, codingBatLoginPassword
 
 from bs4 import BeautifulSoup
 import requests
