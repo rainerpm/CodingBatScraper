@@ -20,6 +20,10 @@ ONLINESOLUTIONS = "C:/Users/E151509/Google Drive/My LASA/CodingBat/Plagiarism/"
 
 ###### JAVA ######
 assignments_java = {}
+assignments_java["String Excercises"] = {"p161056" : "makeAbba", "p147483" : "makeTags","p184030" : "makeOutWord","p108853" : "extraEnd","p172267" : "firstHalf","p130896" : "withoutEnd","p143825" : "nonStart","p197720" : "left2","p137729" : "middleTwo","p174148" : "nTwice","p115863" : "middleThree","p194786" : "lastTwo"}
+assignments_java["Logic80%"] = {"p159531" : "cigarParty","p103360":"dataFashion","p141061":"squirrelPlay","p160543":"alarmClock","p193613":"nearTen","p110973":"answerCell","p153748":"shareDigit"}
+assignments_java["Logic90%"] = {"p153748":"shareDigit","p177181":"teaParty","p137136":"fizzString","p115243":"fizzString2","p113261":"twoAsOne"}
+assignments_java["Logic100%"] = {"p154188":"inOrder","p140272":"inOrderEqual","p169213":"lastDigit","p179196":"lessBy10","p115384":"maxMod5"}
 assignments_java["Midterm"] = {"p283631" : "isAlphaNumeric", "p292285" : "whatFloor"}
 assignments_java["array-2and3"] = {"p199484":"tenRun","p159979":"modThree","p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
 assignments_java["Flex Friday"] = {"p136585":"centeredAverage"}
@@ -60,6 +64,7 @@ def scrapeStudentsData(session):
        email = tds[0].text
        memo = tds[1].text                 # 2nd <td> is the memo column
        studentPeriod,lastName,firstName = memoParse(memo)
+       #print(">>>",lastName,firstName)
        if not FILTERBYPERIOD or (studentPeriod and (studentPeriod in PERIOD)):
           link = tds[0].find("a")         # 1st <td> is the link
           href = link.get('href')
@@ -76,7 +81,9 @@ def scrapeStudentsData(session):
           scriptProblemsVar = scriptProblemsVar.replace("{d:","{'d':")
           scriptProblemsVar = scriptProblemsVar.replace(" s:"," 's':")
           scriptProblemsVar = scriptProblemsVar.replace("attempts:","'attempts':")
-          scriptProblemsVar = scriptProblemsVar[:scriptProblemsVar.rindex(',')] + scriptProblemsVar[scriptProblemsVar.rindex(',')+1:]
+          #print(scriptProblemsVar)
+          if ',' in scriptProblemsVar:
+             scriptProblemsVar = scriptProblemsVar[:scriptProblemsVar.rindex(',')] + scriptProblemsVar[scriptProblemsVar.rindex(',')+1:]
           scriptProblemsVar = scriptProblemsVar.split('=')[1].rstrip(";")
           studentProblemsList = eval(scriptProblemsVar)
           studentProblemsDict = {}
@@ -243,8 +250,8 @@ if __name__ == "__main__":
     language = "java"
 
     if FILTERBYPERIOD:
-        PERIODSPYTHON = ["P4","P5","P6","P4P5P6"]
-        PERIODSJAVA = ["P1"]
+        PERIODSPYTHON = ["P1","P2","P5","P6","P1P2P5P6"]
+        PERIODSJAVA = ["P8"]
         PERIODS = PERIODSJAVA + PERIODSPYTHON
         opt = 1
         for periodopt in PERIODS:
@@ -266,11 +273,11 @@ if __name__ == "__main__":
     choice = input("Choose assignment? ")
     PROBLEMS = assignmentsList[int(choice)-1][1]
 
-    ans = input("Print out suspiciously fast submissions (n or ENTER to continue)? ")
-    if ans == 'n':
-       FASTSUBMISSIONS = False
-    else:
+    ans = input("Print out suspiciously fast submissions (y or ENTER to continue)? ")
+    if ans == 'y':
        FASTSUBMISSIONS = True
+    else:
+       FASTSUBMISSIONS = False
 
     ans = input("Extract code for plagiarism checking (y or ENTER to continue)? ")
     if ans == 'y':
