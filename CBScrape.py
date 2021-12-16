@@ -18,20 +18,34 @@ DEFAULTOUTPUTDIR = "C:/Users/E151509/Desktop/misc/CodingBatResults"
 MOSSDIR = "C:/Users/E151509/Google Drive/My LASA/misc/tools/moss plagiarize checking"
 ONLINESOLUTIONS = "C:/Users/E151509/Google Drive/My LASA/CodingBat/Plagiarism/"
 
+#                                    "":"", "":"", "":"",
+
+
 ###### JAVA ######
 assignments_java = {}
 assignments_java["String Excercises"] = {"p161056" : "makeAbba", "p147483" : "makeTags","p184030" : "makeOutWord","p108853" : "extraEnd","p172267" : "firstHalf","p130896" : "withoutEnd","p143825" : "nonStart","p197720" : "left2","p137729" : "middleTwo","p174148" : "nTwice","p115863" : "middleThree","p194786" : "lastTwo"}
-assignments_java["Logic80%"] = {"p159531" : "cigarParty","p103360":"dataFashion","p141061":"squirrelPlay","p160543":"alarmClock","p193613":"nearTen","p110973":"answerCell","p153748":"shareDigit"}
-assignments_java["Logic90%"] = {"p153748":"shareDigit","p177181":"teaParty","p137136":"fizzString","p115243":"fizzString2","p113261":"twoAsOne"}
-assignments_java["Logic100%"] = {"p154188":"inOrder","p140272":"inOrderEqual","p169213":"lastDigit","p179196":"lessBy10","p115384":"maxMod5"}
+assignments_java["Aa-Logic80%"] = {"p159531" : "cigarParty","p103360":"dataFashion","p141061":"squirrelPlay","p160543":"alarmClock","p193613":"nearTen","p110973":"answerCell","p153748":"shareDigit"}
+assignments_java["Ab-Logic90%"] = {"p177181":"teaParty","p137136":"fizzString","p115243":"fizzString2","p113261":"twoAsOne"}
+assignments_java["Ac-Logic100%"] = {"p154188":"inOrder","p140272":"inOrderEqual","p169213":"lastDigit","p179196":"lessBy10","p115384":"maxMod5"}
+assignments_java["Ba-Arrays80%"] = {"p167011":"makePi","p101230":"makeEnds","p171022":"has23",
+                                    "p111327":"sum67", "p180920":"fizzArray", "p159979":"modThree",
+                                    "p105031":"shiftLeft", "p199484":"tenRun"}
+assignments_java["Bb-Arraysjust100%"] = {"p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
+assignments_java["Bb-Arrays80%and100%"] = {"p167011":"makePi","p101230":"makeEnds","p171022":"has23",
+                                    "p111327":"sum67", "p180920":"fizzArray", "p159979":"modThree",
+                                    "p105031":"shiftLeft", "p199484":"tenRun",
+                                    "p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
+assignments_java["Challenge 1"] = {"p271468":"myParseInt","p287839":"noRepeatSubSeq"}
 assignments_java["Midterm"] = {"p283631" : "isAlphaNumeric", "p292285" : "whatFloor"}
-assignments_java["array-2and3"] = {"p199484":"tenRun","p159979":"modThree","p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
 assignments_java["Flex Friday"] = {"p136585":"centeredAverage"}
 assignments_java["Recursion"] = {"p194781":"triangle","p163932":"sumDigits","p120015":"fibonacci","p118182":"strCopies"}
 
       
 ###### PYTHON ######
 assignments_python = {}
+assignments_python["A_warmup"] = {"p166884" : "parrot_trouble", "p124984" : "makes10", "p124676" : "near_hundred", "p162058" : "pos_neg"}
+assignments_python["B_logic"] = {"p129125" : "date_fashion", "p135815" : "squirrel_play", "p119867" : "alarm_clock"}
+assignments_python["C_berlinWall"] = {"p225759" : "berlinWall0", "p215725" : "berlinWall1", "p212912" : "berlinWall2"}
 assignments_python["rightRange"] = {"p299949" : "rightRange"}
 assignments_python["strings1"] = {"p115413" : "hello_name","p182144" : "make_abba","p132290" : "make_tags","p129981" : "make_out_word","p148853" : "extra_end","p184816" : "first_two","p107010" : "first_half","p138533" : "without_end","p194053" : "combo_string","p127703" : "non_start","p160545" : "left2"}
 assignments_python["list bonus"] = {"p192962":"reverse3","p135290":"max_end3","p126968":"centered_average","p108886":"sum67"}
@@ -62,7 +76,7 @@ def scrapeStudentsData(session):
     for table_row in table_rows[2:]:      # each row is a student
        tds = table_row.find_all("td",limit=2)
        email = tds[0].text
-       memo = tds[1].text                 # 2nd <td> is the memo column
+       memo = tds[1].text.replace("  ", " ")    # 2nd <td> is the memo column (sometimes an extra space creeps in btw comma and first name, even if it isn't there in the memo field)
        studentPeriod,lastName,firstName = memoParse(memo)
        #print(">>>",lastName,firstName)
        if not FILTERBYPERIOD or (studentPeriod and (studentPeriod in PERIOD)):
@@ -223,7 +237,7 @@ def doIt():
                 extractedCodeDict = studentData[5]
                 extractedCode = extractedCodeDict.get(problem,"// not done")
                 fileName = lastName + firstName
-                with open(extractToDir + "/" + fileName + FILE_EXT, 'w') as f:
+                with open(extractToDir + "/" + fileName + FILE_EXT, "w", encoding="utf-8") as f:   
                    f.write(extractedCode)
           print("  copy online solution files from")
           print("   ",ONLINESOLUTIONS)
@@ -237,6 +251,7 @@ def doIt():
               exit()
           studentData = scrapedData[int(ans)-1]
           studentProblemsDict = studentData[4]
+          print(PROBLEMS)
           for problem in PROBLEMS:
             if problem in studentProblemsDict:
               print("Problem",problem,"("+PROBLEMS[problem]+")",studentData[2],studentData[1])
@@ -279,12 +294,12 @@ if __name__ == "__main__":
     else:
        FASTSUBMISSIONS = False
 
-    ans = input("Extract code for plagiarism checking (y or ENTER to continue)? ")
-    if ans == 'y':
-       EXTRACTFILES = True
-       OUTPUTDIR = DEFAULTOUTPUTDIR
-    else:
+    ans = input("Extract code for plagiarism checking (n or ENTER to continue)? ")
+    if ans == 'n':
        EXTRACTFILES = False
+    else:
+       EXTRACTFILES = True
+       OUTPUTDIR = DEFAULTOUTPUTDIR 
                 
     # urls to use
     BASE_URL = "https://codingbat.com"
