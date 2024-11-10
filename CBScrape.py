@@ -1,72 +1,45 @@
 from login import codingBatLoginUserName, codingBatLoginPassword
+from CBScrapedata import DEFAULTOUTPUTDIR,MOSSDIR,ONLINESOLUTIONS,SCOREBOARDDIR,PERIODSPYTHON,PERIODSJAVA,assignments_java,assignments_python
 
-from bs4 import BeautifulSoup
-import requests
+from bs4 import BeautifulSoup   # Thonny (import beautifulsoup4)
+import requests  # import request
 import getpass
 import re
 from datetime import datetime
 import os
 from shutil import copyfile
+from shutil import copy      # module is in python standard library
+from pathlib  import Path
 
-# CONSTANTS to setup
-# set below to True if you only want output from specific class period(s)
-# You will have to update the memoParse() function below to extract
-# the class period info from the memo field on the CodingBat report page
-FILTERBYPERIOD = True  
-# If you choose to extract files you'll also need to setup these
-DEFAULTOUTPUTDIR = "C:/Users/E151509/Desktop/misc/CodingBatResults"
-MOSSDIR = "C:/Users/E151509/Google Drive/My LASA/misc/tools/moss plagiarize checking"
-ONLINESOLUTIONS = "C:/Users/E151509/Google Drive/My LASA/CodingBat/Plagiarism/"
+dateTime = datetime.now().strftime("%b_%d_%Hh%Mm%Ss")
 
-#                                    "":"", "":"", "":"",
-
-
-###### JAVA ######
-assignments_java = {}
-assignments_java["String Excercises"] = {"p161056" : "makeAbba", "p147483" : "makeTags","p184030" : "makeOutWord","p108853" : "extraEnd","p172267" : "firstHalf","p130896" : "withoutEnd","p143825" : "nonStart","p197720" : "left2","p137729" : "middleTwo","p174148" : "nTwice","p115863" : "middleThree","p194786" : "lastTwo"}
-assignments_java["Aa-Logic80%"] = {"p159531" : "cigarParty","p103360":"dataFashion","p141061":"squirrelPlay","p160543":"alarmClock","p193613":"nearTen","p110973":"answerCell","p153748":"shareDigit"}
-assignments_java["Ab-Logic90%"] = {"p177181":"teaParty","p137136":"fizzString","p115243":"fizzString2","p113261":"twoAsOne"}
-assignments_java["Ac-Logic100%"] = {"p154188":"inOrder","p140272":"inOrderEqual","p169213":"lastDigit","p179196":"lessBy10","p115384":"maxMod5"}
-assignments_java["Ba-Arrays80%"] = {"p167011":"makePi","p101230":"makeEnds","p171022":"has23",
-                                    "p111327":"sum67", "p180920":"fizzArray", "p159979":"modThree",
-                                    "p105031":"shiftLeft", "p199484":"tenRun"}
-assignments_java["Bb-Arraysjust100%"] = {"p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
-assignments_java["Bb-Arrays80%and100%"] = {"p167011":"makePi","p101230":"makeEnds","p171022":"has23",
-                                    "p111327":"sum67", "p180920":"fizzArray", "p159979":"modThree",
-                                    "p105031":"shiftLeft", "p199484":"tenRun",
-                                    "p189576":"maxSpan","p158767":"canBalance","p104090":"seriesUp"}
-assignments_java["Challenge 1"] = {"p271468":"myParseInt","p287839":"noRepeatSubSeq"}
-assignments_java["Midterm"] = {"p283631" : "isAlphaNumeric", "p292285" : "whatFloor"}
-assignments_java["Flex Friday"] = {"p136585":"centeredAverage"}
-assignments_java["Recursion"] = {"p194781":"triangle","p163932":"sumDigits","p120015":"fibonacci","p118182":"strCopies"}
-
-      
-###### PYTHON ######
-assignments_python = {}
-assignments_python["A_warmup"] = {"p166884" : "parrot_trouble", "p124984" : "makes10", "p124676" : "near_hundred", "p162058" : "pos_neg"}
-assignments_python["B_logic"] = {"p129125" : "date_fashion", "p135815" : "squirrel_play", "p119867" : "alarm_clock"}
-assignments_python["C_berlinWall"] = {"p225759" : "berlinWall0", "p215725" : "berlinWall1", "p212912" : "berlinWall2"}
-assignments_python["rightRange"] = {"p299949" : "rightRange"}
-assignments_python["strings1"] = {"p115413" : "hello_name","p182144" : "make_abba","p132290" : "make_tags","p129981" : "make_out_word","p148853" : "extra_end","p184816" : "first_two","p107010" : "first_half","p138533" : "without_end","p194053" : "combo_string","p127703" : "non_start","p160545" : "left2"}
-assignments_python["list bonus"] = {"p192962":"reverse3","p135290":"max_end3","p126968":"centered_average","p108886":"sum67"}
-assignments_python["Final 2021 - Day 1"] = {"p255003" : "div2and7","p281953" : "allAboutListsPart1"}  
-assignments_python["Final 2021 - Day 2"] = {"p226557" : "allAboutListsPart2","p217373" : "allAboutListsPart3"}
-
+class bcolors:
+    BLUE = '\033[94m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
 
 # extract student's class period and first & last name from info in memo field
 def memoParse(memo):
-   result = re.search('^\((.*)\) ([-\w]+),\s?([-\w]+)', memo)
-   studentPeriod = lastName = firstName = ""
+   result = re.search('^\((.*)\) ([-\w]+),\s?([-\w]+) (\d+)', memo)
+   studentPeriod = lastName = firstName = studentId = ""
    if result:
       studentPeriod = result.group(1)
       lastName = result.group(2)
       firstName = result.group(3)
-   return studentPeriod,lastName,firstName
+      studentId = result.group(4)
+   else:
+      result = re.search('^\((.*)\) ([-\w]+),\s?([-\w]+)', memo)
+      if result:
+          studentPeriod = result.group(1)
+          lastName = result.group(2)
+          firstName = result.group(3)
+          studentId = bcolors.BOLD + bcolors.RED + "***NoStudentId***" + bcolors.ENDC         
+   return studentPeriod,lastName,firstName,studentId
    
-# scrapes home page for each directories title to be used in url building
-def scrapeStudentsData(session):
-    for key in sorted(PROBLEMS.keys()) :
-       print(" ",key , " -> " , PROBLEMS[key])
+def scrapeStudentData(session,period,problems):
+    for key in sorted(problems.keys()) :
+       print(" ",key , " -> " , problems[key])
     print("Retrieving student data (correct, error + incorrect)")
     studentsData = []
     reportPage = session.get(REPORT_URL)
@@ -77,12 +50,12 @@ def scrapeStudentsData(session):
        tds = table_row.find_all("td",limit=2)
        email = tds[0].text
        memo = tds[1].text.replace("  ", " ")    # 2nd <td> is the memo column (sometimes an extra space creeps in btw comma and first name, even if it isn't there in the memo field)
-       studentPeriod,lastName,firstName = memoParse(memo)
+       studentPeriod,lastName,firstName,studentId = memoParse(memo)
        #print(">>>",lastName,firstName)
-       if not FILTERBYPERIOD or (studentPeriod and (studentPeriod in PERIOD)):
+       if studentPeriod and (studentPeriod == period):
           link = tds[0].find("a")         # 1st <td> is the link
           href = link.get('href')
-          # check status of problems (see if student finished problems in PROBLEMS list)
+          # check status of problems (see if student finished problems in problems list)
           studentSubmissionsUrl = BASE_URL + href
           response = session.get(studentSubmissionsUrl)
           content = BeautifulSoup(response.content,"html.parser")
@@ -118,7 +91,7 @@ def scrapeStudentsData(session):
           if EXTRACTFILES:
              # extract programs   
              userEmail = re.search('user=(.*)&tag', href).group(1)
-             for problem in PROBLEMS:
+             for problem in problems:
                 studentProblemURL = BASE_URL + "/prob/" + problem + "?owner=" + userEmail
                 response = session.get(studentProblemURL)
                 content = BeautifulSoup(response.content,"html.parser")
@@ -126,7 +99,7 @@ def scrapeStudentsData(session):
                 table = indentDiv.find("form", {"name": "codeform"})
                 aceDiv = table.find("div", id="ace_div")
                 studentExtractedCodeDict[problem] = aceDiv.text
-          studentsData.append((studentPeriod,lastName,firstName,email,studentProblemsDict,studentExtractedCodeDict))      
+          studentsData.append((studentPeriod,lastName,firstName,email,studentProblemsDict,studentExtractedCodeDict,studentId))      
     studentsData.sort()
     return studentsData
 
@@ -171,136 +144,156 @@ def attemptInterpret(attempt):
       result = attempt[1][1:]        
     return str(attempt[0]) + "  " + result
 
-# login to site, process results, and write out submitted code
-def doIt():
-   currentDateTime = datetime.now().strftime("%b_%d_%Hh%Mm")
-   with requests.Session() as session:
-      print("Logging in")
-      post = session.post(LOGIN_URL, data=post_params)
-      if "Failed to login -- bad username or password" in post.text:
-           print("  login failed (double check CodingBat username & password in login.py)")
-           exit()
-      scrapedData = scrapeStudentsData(session)
-      count = 0
-      for studentData in scrapedData:
-         studentName = studentData[1]+" "+studentData[2]
-         count = count + 1
-         results = ""
-         numCorrect = 0
-         studentProblemsDict = studentData[4]
-         firstCorrectAttempts = []
-         for problem in PROBLEMS:
-            if problem in studentProblemsDict:
-              attempts = studentProblemsDict[problem]
-              c,i = attemptsStats(attempts)
-              result = f'({c:2d} {i:2d})'
-              if result == "( 1  0)":
-                result = "( ONE )"
-              if c > 0:
-                numCorrect += 1
-              first = firstCorrectAttempt(attempts)
-              if first:
-                  firstCorrectAttempts.append((first[0],problem))   # correct attempt time it was first correct and the problem name
-            else:
-                result = "(!done)"
-            results += result
-         print(f'{count:>2d} {studentData[0]} {numCorrect:>2d} {results} {studentName}')
-         if firstCorrectAttempts:
-            firstCorrectAttempts.sort()
-            firstCorrectAttemptsWithDifference = attemptsAddDifference(firstCorrectAttempts)
-            if firstCorrectAttemptsWithDifference:
-               firstCorrectAttemptsWithDifference.sort()
-               first = firstCorrectAttemptsWithDifference[0]
-               if FASTSUBMISSIONS and first[0] < 120:
-                  print("        ",firstCorrectAttemptsWithDifference[:2])
+def processScrapedData(scrapedData,problems,studentDetails):
+  currentDateTime = datetime.now().strftime("%Y_%b_%d")
+  year2Digits = datetime.now().strftime("%y")
 
-      if EXTRACTFILES:
-          print("Extracting files to",OUTPUTDIR)
-          ## write out code for each problem
-          if not os.path.isdir(OUTPUTDIR):
-             os.mkdir(OUTPUTDIR)
-             print("Created",OUTPUTDIR)
-          for problem in PROBLEMS:
-             problemDir = OUTPUTDIR + "/" + problem
-             if not os.path.isdir(problemDir):
-                os.mkdir(problemDir)
-                print("new directory",problemDir)
-             os.chdir(problemDir)
-             extractToDir = os.path.join(problemDir,currentDateTime)
+  count = 0
+  firstWrite = True
+  for studentData in scrapedData:
+     studentPeriod = studentData[0]
+     studentName = studentData[1]+" "+studentData[2]
+     studentId = studentData[6]
+     count = count + 1
+     results = ""
+     numCorrect = 0
+     studentProblemsDict = studentData[4]
+     firstCorrectAttempts = []
+     for problem in problems:
+        if problem in studentProblemsDict:
+          attempts = studentProblemsDict[problem]
+          c,i = attemptsStats(attempts)
+          result = f'({c:2d} {i:2d})'
+          if result == "( 1  0)":
+            result = bcolors.BOLD + bcolors.RED + "( ONE )" + bcolors.ENDC
+          if result == "( 1  1)":
+            result = bcolors.BOLD + bcolors.BLUE + "( TWO )" + bcolors.ENDC
+          if c > 0:
+            numCorrect += 1
+          first = firstCorrectAttempt(attempts)
+          if first:
+              firstCorrectAttempts.append((first[0],problems[problem]))   # correct attempt time it was first correct and the problem name
+        else:
+            result = "(!done)"
+        results += result
+     outputStr = f'{count:>2d} {studentData[0]} {numCorrect:>2d} {results} {studentName} {studentId}'
+     print(outputStr)
+     if (firstWrite):
+         firstWrite = False
+         with open(Path(SCOREBOARDDIR,studentData[0] + ' - ' + assignmentName + '.txt'), "w") as gf:
+             gf.write(outputStr+'\n')
+     else:
+         with open(Path(SCOREBOARDDIR,studentData[0] + ' - ' + assignmentName + '.txt'), "a") as gf:
+             gf.write(outputStr+'\n')             
+     if firstCorrectAttempts:
+        firstCorrectAttempts.sort()
+        firstCorrectAttemptsWithDifference = attemptsAddDifference(firstCorrectAttempts)
+        if firstCorrectAttemptsWithDifference:
+           firstCorrectAttemptsWithDifference.sort()
+           first = firstCorrectAttemptsWithDifference[0]
+           if FASTSUBMISSIONS and first[0] < 120:
+              print("        ",firstCorrectAttemptsWithDifference[:2])
+  print('Wrote results to file ' + str(Path(SCOREBOARDDIR,studentData[0] + ' - ' + assignmentName + '.txt')))
+  
+  if EXTRACTFILES:
+      print("Extracting files to",OUTPUTDIR)
+      ## write out code for each problem
+      if not os.path.isdir(OUTPUTDIR):
+         os.mkdir(OUTPUTDIR)
+         print("Created",OUTPUTDIR)
+      for problem in problems:
+         problemDir = OUTPUTDIR + "/" + problems[problem]
+         if not os.path.isdir(problemDir):
+            os.mkdir(problemDir)
+            print("new directory",problemDir)
+         os.chdir(problemDir)
+         extractToDir = os.path.join(problemDir,currentDateTime)
+         if not os.path.isdir(currentDateTime):
              os.mkdir(currentDateTime)
-             os.chdir(currentDateTime)
-             copyfile(MOSSDIR + "/" + MOSS_BAT_FILE,extractToDir + "/moss.bat")            
-             copyfile(MOSSDIR + "/moss.pl",extractToDir + "/moss.pl")            
-             for studentData in scrapedData:
-                lastName  = studentData[1]
-                firstName = studentData[2]
-                extractedCodeDict = studentData[5]
-                extractedCode = extractedCodeDict.get(problem,"// not done")
-                fileName = lastName + firstName
-                with open(extractToDir + "/" + fileName + FILE_EXT, "w", encoding="utf-8") as f:   
-                   f.write(extractedCode)
-          print("  copy online solution files from")
-          print("   ",ONLINESOLUTIONS)
-          print("  to the extracted file directory")
-          print("   ",OUTPUTDIR)
-          print("  and then run moss")
-
-      while True:
-          ans = input("Enter number for student details (or x to exit)? ")
-          if ans == 'x':
-              exit()
-          studentData = scrapedData[int(ans)-1]
-          studentProblemsDict = studentData[4]
-          print(PROBLEMS)
-          for problem in PROBLEMS:
-            if problem in studentProblemsDict:
-              print("Problem",problem,"("+PROBLEMS[problem]+")",studentData[2],studentData[1])
-              attempts = studentProblemsDict[problem]
-              for attempt in attempts:
-                 print(" ",attemptInterpret(attempt))
-          
+         os.chdir(currentDateTime)
+         copyfile(MOSSDIR + "/" + MOSS_BAT_FILE,extractToDir + "/moss.bat")            
+         copyfile(MOSSDIR + "/moss.pl",extractToDir + "/moss.pl")            
+         for studentData in scrapedData:
+            lastName  = studentData[1]
+            firstName = studentData[2]
+            extractedCodeDict = studentData[5]
+            extractedCode = extractedCodeDict.get(problem,"// not done")
+            fileName = year2Digits + '_' + studentPeriod + lastName + firstName
+            with open(extractToDir + "/" + fileName + FILE_EXT, "w", encoding="utf-8") as f:   
+               f.write(extractedCode)
+         ONLINESOLUTIONSDIR = os.path.join(ONLINESOLUTIONS,language,problem + "_" + problems[problem])
+         if os.path.isdir(ONLINESOLUTIONSDIR):
+             print(f'  copying online solutions files from {ONLINESOLUTIONSDIR}')
+             print(f'  to {problemDir} for running moss.')
+             files = os.listdir(ONLINESOLUTIONSDIR)
+             for fname in files:
+                copy(os.path.join(ONLINESOLUTIONSDIR,fname),extractToDir)
+      #print("  copy online solution files from")
+      #print("   ",ONLINESOLUTIONS)
+      #print("  to the extracted file directory")
+      #print("   ",OUTPUTDIR)
+      #print("  and then run moss")
+     
+  while studentDetails:
+      ans = input("Enter number for student details (or x to exit)? ")
+      if ans == 'x':
+          exit()
+      studentData = scrapedData[int(ans)-1]
+      studentProblemsDict = studentData[4]
+      print(problems)
+      for problem in problems:
+        if problem in studentProblemsDict:
+          print("Problem",problem,"("+problems[problem]+")",studentData[2],studentData[1])
+          attempts = studentProblemsDict[problem]
+          for attempt in attempts:
+             print(" ",attemptInterpret(attempt))
+      
 
 if __name__ == "__main__":
+    if not Path(SCOREBOARDDIR).is_dir():
+        Path(SCOREBOARDDIR).mkdir()    
+    PERIODS = PERIODSJAVA + PERIODSPYTHON
+    print("Python Classes")
+    for periodopt in PERIODSPYTHON:
+        print(f'  {periodopt[-1]}) {periodopt}')
+    print("JAVA Classes")
+    for periodopt in PERIODSJAVA:
+        print(f'  {periodopt[-1]}) {periodopt}')
+    #choice = input("Choose period(s)? ")
+    #PERIOD = "P" + str(choice)
+    userInput = input('For a language choose one or more numbers (separated with space) (x=exit): ').strip()
+    if userInput == 'x':
+        exit() 
+    selected = userInput.split()
+    periodsSelected = ["P" + s for s in selected]
+    
     assignments = assignments_java
     language = "java"
-
-    if FILTERBYPERIOD:
-        PERIODSPYTHON = ["P1","P2","P5","P6","P1P2P5P6"]
-        PERIODSJAVA = ["P8"]
-        PERIODS = PERIODSJAVA + PERIODSPYTHON
-        opt = 1
-        for periodopt in PERIODS:
-            print(str(opt) + ")" ,periodopt)
-            opt += 1
-        choice = input("Choose period(s)? ")
-        PERIOD = PERIODS[int(choice)-1]
-
-        if PERIOD in PERIODSPYTHON:
-            language = "python"
-            assignments = assignments_python
+    if periodsSelected[0] in PERIODSPYTHON:
+        language = "python"
+        assignments = assignments_python
         
-    assignmentsList = sorted(assignments.items())
-
+    assignmentsList = list(assignments.items())
     opt = 1
     for assignment in assignmentsList:
-        print(str(opt) + ")" , assignment[0])
+        print(f'  {opt}) {assignment[0]}')
         opt += 1
-    choice = input("Choose assignment? ")
-    PROBLEMS = assignmentsList[int(choice)-1][1]
-
-    ans = input("Print out suspiciously fast submissions (y or ENTER to continue)? ")
+    userInput = input("Choose one or more assignments (separated by spaces)? ")
+    assignmentsSelected = userInput.split()
+       
+    ans = input("Print out suspiciously fast submissions (y)? ")
     if ans == 'y':
        FASTSUBMISSIONS = True
     else:
        FASTSUBMISSIONS = False
 
-    ans = input("Extract code for plagiarism checking (n or ENTER to continue)? ")
-    if ans == 'n':
-       EXTRACTFILES = False
-    else:
+    ans = input("Extract code for plagiarism checking (y)? ")
+    if ans == 'y':
        EXTRACTFILES = True
-       OUTPUTDIR = DEFAULTOUTPUTDIR 
-                
+       OUTPUTDIR = os.path.join(DEFAULTOUTPUTDIR,assignmentName)
+    else:
+       EXTRACTFILES = False
+       
     # urls to use
     BASE_URL = "https://codingbat.com"
     LOGIN_URL = BASE_URL + "/login"
@@ -311,7 +304,7 @@ if __name__ == "__main__":
        FILE_EXT = ".java"
        MOSS_BAT_FILE = "moss_java.bat"
     else:
-       LANGUAGE_URL = BASE_URL + "/python"
+       LANGUAGE_URL = BASE_URL + "/pytPath(SCOREBOARDDIRhon"
        REPORT_URL = BASE_URL + "/report?python=on&stock=on&sortname=on&homepath=&form="
        COMMENT_START = "#"
        FILE_EXT = ".py"
@@ -320,4 +313,17 @@ if __name__ == "__main__":
         "uname": codingBatLoginUserName,
         "pw": codingBatLoginPassword,
     }
-    doIt()
+    with requests.Session() as session:
+        print("Logging in")
+        post = session.post(LOGIN_URL, data=post_params)
+        if "Failed to login -- bad username or password" in post.text:
+           print("  login failed (double check CodingBat username & password in login.py)")
+           exit()
+            
+        for period in periodsSelected:
+            for assignment in assignmentsSelected:
+                assignmentName = assignmentsList[int(assignment)-1][0]
+                problems = assignmentsList[int(assignment)-1][1]               
+                print("\n"+ bcolors.BOLD + "*** CLASS PERIOD " + period + " (" + assignmentName + ") ***" + bcolors.ENDC)
+                scrapedData = scrapeStudentData(session,period,problems)
+                processScrapedData(scrapedData,problems,len(periodsSelected)==1 and len(assignmentsSelected)==1)
